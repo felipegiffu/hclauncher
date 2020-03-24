@@ -1,0 +1,206 @@
+###################################################################################################
+###   NAME:              install_hclauncher.yml                                                   #
+###   VERSION:           1.0                                                                      #
+###   DESCRIPTION:       Download ITSS policies, install and generate PDF HealthCheck on servers. #
+###   CREATION DATE:     20/11/2019                                                               #
+###   ESCRITO POR:       Felipe Thomaz Giffu                                                      #
+###   E-MAIL:            felipe.giffu@ibm.com                                                     #
+###   PLATFORM:          Red Hat / SUSE                                                           #
+###################################################################################################
+---
+- hosts: suse
+  remote_user: ansible
+  become: yes
+  become_method: sudo
+  # gather_facts: false
+
+  vars:
+    localBaseDir: /etc/ansible/playbook/linux/hclauncher
+    localBaseDirDownloads: "{{ localBaseDir }}/downloads"
+    localBaseDirScripts: "{{ localBaseDir }}/scripts"
+    localBaseDirHCReport: "{{ localBaseDir }}/reports"
+    remoteBaseDir: /tmp/HClauncher_SVC
+    remoteBaseDirHCBin: "{{ remoteBaseDir }}/HCLauncher"
+    remoteBaseDirHCPol: "{{ remoteBaseDir }}/HCPolicies"
+    remoteBaseDirHCReport: "{{ remoteBaseDir }}/HCReports"
+    HCurl: http://mlvgsa.ibm.com/projects/s/scr/HCLTK/V16
+    HCurlPol: http://mlvgsa.ibm.com/home/t/s/tscmemea/web/public/files
+
+
+  tasks:
+
+  - name: Check /tmp freespace, 2.5GB is needed to run the HCLauncher
+    shell: df /tmp --output\=avail | tail -1
+    register: tmp_freespace
+
+  - block:
+    - name: "End the playbook if some server fail in the free space check in the /tmp"
+      debug:
+        msg: "Ending the playbook... Please chech the space in the /tmp because is needed 2.5 GB free"
+      when: tmp_freespace.stdout|float < 2560000
+    - meta: end_play
+      when: tmp_freespace.stdout|float < 2560000
+
+  - name : Creating Local Folders
+    delegate_to: localhost
+    run_once: yes
+    file:
+      path: "{{ item }}"
+      state: directory
+      owner: cansible
+      group: ansible
+      mode: 0755
+    with_items:
+      - "{{ localBaseDirDownloads }}"
+
+  - name: Checking if HCLauncher_linux.toolkit exist
+    delegate_to: localhost
+    stat:
+      path: "{{ localBaseDir }}/downloads/HCLauncher_linux.toolkit"
+    register: toolkit_file
+
+  - name: Download HCLauncher Binaries
+    become: no
+    delegate_to: localhost
+    run_once: yes
+    get_url:
+      url: "{{ item }}"
+      dest: "{{ localBaseDirDownloads }}"
+      owner: cansible
+      group: ansiblegr
+      mode: 0755
+    with_items:
+      - "{{ HCurl }}/HCLauncher_linux.toolkit"
+    when: toolkit_file.stat.exists == false
+    ignore_errors: no
+
+  - name: Creating Remote Folders
+    file:
+      path: "{{ item }}"
+      state: directory
+      owner: root
+      group: ansiblegr
+      mode: 0755
+    with_items:
+      - "{{ remoteBaseDir }}"
+      - "{{ remoteBaseDirHCBin }}"
+      - "{{ remoteBaseDirHCPol }}"
+      - "{{ remoteBaseDirHCReport }}"
+
+  - name: Copy Binaries to the hosts
+    copy:
+      src: "{{ item }}"
+      dest: "{{ remoteBaseDir }}"
+      owner: root
+      group: ansiblegr
+      mode: 0755
+    with_items:
+      - "{{ localBaseDirDownloads }}/HCLauncher_linux.toolkit"
+
+  - name: Install HCLauncher on RHEL hosts
+    shell: |
+      cd {{ remoteBaseDir }};tar xf HCLauncher_linux.toolkit
+      rm {{ remoteBaseDir }}/HCLauncher_linux.toolkit
+
+  - name : Create Local Folders
+    delegate_to: localhost
+    run_once: yes
+    file:
+      path: "{{ item }}"
+      state: directory
+      owner: cansible
+      group: ansiblegr
+      mode: 0755
+    with_items:
+      - "{{ localBaseDirDownloads }}"
+
+  - name: Download HCLauncher Policies
+    become: no
+    delegate_to: localhost
+    run_once: yes
+    get_url:
+      url: "{{ HCurlPol }}/{{ item }}"
+      dest: "{{ localBaseDirDownloads }}"
+      owner: cansible
+      group: ansiblegr
+      mode: 0755
+    with_items:
+      - Tivoli/scm511policies/gsdisec/OpenSSH.UNIX.ITSSCSD.pol
+      - Tivoli/scm511policies/gsdisec/UNIX.Linux.ITSSCSD.pol
+      - Sudo_st/SUDO.UNIX.ITSSCSD.pol
+
+  - name: Remove Remote Old Policies and Reports
+    file:
+      path: "{{ item }}"
+      state: absent
+    with_items:
+      - "{{ remoteBaseDirHCPol }}"
+      - "{{ remoteBaseDirHCReport }}"
+
+  - name: Creating Remote Folders
+    file:
+      path: "{{ item }}"
+      state: directory
+      owner: root
+      group: ansiblegr
+      mode: 0755
+    with_items:
+      - "{{ remoteBaseDir }}"
+      - "{{ remoteBaseDirHCBin }}"
+      - "{{ remoteBaseDirHCPol }}"
+      - "{{ remoteBaseDirHCReport }}"
+
+  - name: Copy Policies
+    copy:
+      src: "{{ localBaseDirDownloads }}/{{ item }}"
+      dest: "{{ remoteBaseDirHCPol }}"
+      owner: root
+      group: ansiblegr
+      mode: 0755
+    with_items:
+      - UNIX.Linux.ITSSCSD.pol
+      - OpenSSH.UNIX.ITSSCSD.pol
+      - SUDO.UNIX.ITSSCSD.pol
+
+  - name: Run HCLauncher
+    script: "{{ localBaseDirScripts }}/hc_run.sh {{ remoteBaseDirHCBin }} {{ remoteBaseDirHCPol }} {{ item }} {{ remoteBaseDirHCReport }} {{ now(fmt='%d%B%Y') }} {{ ansible_hostname }}"
+    with_items:
+      - UNIX.Linux.ITSSCSD.pol
+      - OpenSSH.UNIX.ITSSCSD.pol
+      - SUDO.UNIX.ITSSCSD.pol
+
+  - name: Generating list of PDF to copy
+    shell: "ls -1 {{ remoteBaseDirHCReport }}/*.pdf"
+    register: pdf_list
+
+  - name: Generating list of PDF to copy
+    shell: "ls -1 {{ remoteBaseDirHCReport }}/*.pdf"
+    register: pdf_list
+
+  - name : Create Local Folders to report
+    delegate_to: localhost
+    run_once: yes
+    file:
+      path: "{{ item }}"
+      state: directory
+      owner: cansible
+      group: ansiblegr
+      mode: 0755
+    with_items:
+      - "{{ localBaseDirHCReport }}"
+
+  - name: Copy Reports to Ansible Engine
+    fetch:
+      src: "{{ item }}"
+      dest: "{{ localBaseDirHCReport }}/"
+      owner: cansible
+      group: ansiblegr
+      flat: yes
+    with_items: "{{ pdf_list.stdout_lines }}"
+
+  - name: Create a zip archive of Report folder
+    delegate_to: localhost
+    archive:
+      path: "{{ localBaseDirHCReport }}/"
+      dest: "{{ localBaseDir }}/HCLinux-reports-{{ansible_date_time.date}}.zip"
+      format: zip
