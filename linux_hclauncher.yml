@@ -204,7 +204,6 @@
         path: "{{ localBaseDirHCReport }}/"
         dest: "{{ localBaseDir }}/HCLinux-reports-{{ansible_date_time.date}}.zip"
         format: zip
-=======
 
     - name: Check /tmp freespace, 2.5GB is needed to run the HCLauncher
       shell: df /tmp --output\=avail | tail -1
