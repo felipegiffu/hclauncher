@@ -27,12 +27,7 @@
     HCurlPol: http://mlvgsa.ibm.com/home/t/s/tscmemea/web/public/files
 
 
-  tasks:
-<<<<<<< HEAD
-    - git:
-        repo: git@github.com:felipegiffu/hclauncher.git
-        dest: /etc/ansible/playbook/linux/hclauncher
-        update: yes   
+  tasks: 
 
     - name: Check /tmp freespace, 2.5GB is needed to run the HCLauncher
       shell: df /tmp --output\=avail | tail -1
@@ -386,4 +381,4 @@
       path: "{{ localBaseDirHCReport }}/"
       dest: "{{ localBaseDir }}/HCLinux-reports-{{ansible_date_time.date}}.zip"
       format: zip
->>>>>>> 1e97732de561e16a79abdec9ecaa1ba3d947d28f
+...
