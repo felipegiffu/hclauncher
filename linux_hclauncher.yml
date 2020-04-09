@@ -42,7 +42,6 @@
         when: tmp_freespace.stdout|float < 2560000
 
     - name : Creating Local Folders
-      delegate_to: localhost
       run_once: yes
       file:
         path: "{{ item }}"
