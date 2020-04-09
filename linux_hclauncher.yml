@@ -15,7 +15,7 @@
   # gather_facts: false
 
   vars:
-    localBaseDir: /etc/ansible/playbook/linux/hclauncher
+    localBaseDir: /tmp
     localBaseDirDownloads: "{{ localBaseDir }}/downloads"
     localBaseDirScripts: "{{ localBaseDir }}/scripts"
     localBaseDirHCReport: "{{ localBaseDir }}/reports"
@@ -46,26 +46,24 @@
       file:
         path: "{{ item }}"
         state: directory
-        owner: cansible
+        owner: ansible
         group: ansible
         mode: 0755
       with_items:
         - "{{ localBaseDirDownloads }}"
 
     - name: Checking if HCLauncher_linux.toolkit exist
-      delegate_to: localhost
       stat:
         path: "{{ localBaseDir }}/downloads/HCLauncher_linux.toolkit"
       register: toolkit_file
 
     - name: Download HCLauncher Binaries
       become: no
-      delegate_to: localhost
       run_once: yes
       get_url:
         url: "{{ item }}"
         dest: "{{ localBaseDirDownloads }}"
-        owner: cansible
+        owner: ansible
         group: ansiblegr
         mode: 0755
       with_items:
@@ -73,7 +71,7 @@
       when: toolkit_file.stat.exists == false
       ignore_errors: no
 
-    - name: Creating Remote Folders
+    - name: Creating Local Folders
       file:
         path: "{{ item }}"
         state: directory
@@ -102,12 +100,11 @@
         rm {{ remoteBaseDir }}/HCLauncher_linux.toolkit
 
     - name : Create Local Folders
-      delegate_to: localhost
       run_once: yes
       file:
         path: "{{ item }}"
         state: directory
-        owner: cansible
+        owner: ansible
         group: ansiblegr
         mode: 0755
       with_items:
@@ -120,7 +117,7 @@
       get_url:
         url: "{{ HCurlPol }}/{{ item }}"
         dest: "{{ localBaseDirDownloads }}"
-        owner: cansible
+        owner: ansible
         group: ansiblegr
         mode: 0755
       with_items:
@@ -175,18 +172,6 @@
     - name: Generating list of PDF to copy
       shell: "ls -1 {{ remoteBaseDirHCReport }}/*.pdf"
       register: pdf_list
-
-    - name : Create Local Folders to report
-      delegate_to: localhost
-      run_once: yes
-      file:
-        path: "{{ item }}"
-        state: directory
-        owner: cansible
-        group: ansiblegr
-        mode: 0755
-      with_items:
-        - "{{ localBaseDirHCReport }}"
 
     - name: Copy Reports to Ansible Engine
       fetch:
