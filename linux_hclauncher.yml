@@ -57,6 +57,11 @@
       stat:
         path: "{{ localBaseDir }}/downloads/HCLauncher_linux.toolkit"
       register: toolkit_file
+      
+    - name: Checking if script exist
+      stat:
+        path: "{{ localBaseDirScripts }}/hc_run.sh"
+      register: script_file
     
     - name: Download Script
       become: no
@@ -69,6 +74,8 @@
         mode: 0755
       with_items:
         - "{{ HCurlScripts }}"
+      when: script_file.stat.exists == false
+      ignore_errors: no
     - name: Unpacking the Script
       shell: |
         cd {{ localBaseDirDownloads }};unzip scripts.zip
@@ -85,7 +92,6 @@
         mode: 0755
       with_items:
         - "{{ localBaseDirHClauncher }}"
-        #- "{{ localBaseDirHCBin }}"
         - "{{ localBaseDirHCPol }}"
         - "{{ localBaseDirHCReport }}"
 
@@ -166,4 +172,9 @@
         path: "{{ localBaseDirHCReport }}/"
         dest: "{{ localBaseDir }}/HCLinux-{{ansible_hostname}}-{{ansible_date_time.date}}.zip"
         format: zip
+        
+    - name: Forwarding the HC to your E-mail
+      shell: |
+        cd /tmp/HealthCheck
+        echo "Pls check attached file" | mail -a *.zip -s "$(hostname) - HC" felipe.giffu@ibm.com
 ...
