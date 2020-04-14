@@ -84,20 +84,20 @@
         - "{{ localBaseDirHCPol }}"
         - "{{ localBaseDirHCReport }}"
 
-    - name: Copy Binaries to the hosts
-      copy:
-        src: "{{ item }}"
-        dest: "{{ localBaseDirHClauncher }}"
-        owner: ansible
-        group: ansible
-        mode: 0755
-      with_items:
-        - "{{ localBaseDirDownloads }}/HCLauncher_linux.toolkit"
+    #- name: Copy Binaries to the hosts
+      #copy:
+        #src: "{{ item }}"
+        #dest: "{{ localBaseDirHClauncher }}"
+        #owner: ansible
+        #group: ansible
+        #mode: 0755
+      #with_items:
+        #- "{{ localBaseDirDownloads }}/HCLauncher_linux.toolkit"
 
     - name: Install HCLauncher on RHEL hosts
       shell: |
-        cd {{ localBaseDirHClauncher }};tar xf HCLauncher_linux.toolkit
-        rm {{ localBaseDirHClauncher }}/HCLauncher_linux.toolkit
+        cd {{ localBaseDirDownloads }};tar xf HCLauncher_linux.toolkit
+        rm {{ localBaseDirDownloads }}/HCLauncher_linux.toolkit
 
     - name : Create Local Folders
       run_once: yes
