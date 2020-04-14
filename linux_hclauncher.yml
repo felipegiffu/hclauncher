@@ -110,20 +110,6 @@
       with_items:
         - "{{ localBaseDirDownloads }}"
 
-    - name: Download HCLauncher Policies
-      become: no
-      run_once: yes
-      get_url:
-        url: "{{ HCurlPol }}/{{ item }}"
-        dest: "{{ localBaseDirDownloads }}"
-        owner: ansible
-        group: ansible
-        mode: 0755
-      with_items:
-        - Tivoli/scm511policies/gsdisec/OpenSSH.UNIX.ITSSCSD.pol
-        - Tivoli/scm511policies/gsdisec/UNIX.Linux.ITSSCSD.pol
-        - Sudo_st/SUDO.UNIX.ITSSCSD.pol
-
     - name: Remove Remote Old Policies and Reports
       file:
         path: "{{ item }}"
@@ -144,18 +130,20 @@
         - "{{ localBaseDirHCBin }}"
         - "{{ localBaseDirHCPol }}"
         - "{{ localBaseDirHCReport }}"
-
-   # - name: Copy Policies
-   #   copy:
-   #     src: "{{ localBaseDirDownloads }}/{{ item }}"
-   #     dest: "{{ localBaseDirHCPol }}"
-   #     owner: ansible
-   #     group: ansible
-   #     mode: 0755
-   #   with_items:
-   #     - UNIX.Linux.ITSSCSD.pol
-   #     - OpenSSH.UNIX.ITSSCSD.pol
-   #     - SUDO.UNIX.ITSSCSD.pol
+    
+    - name: Download HCLauncher Policies
+      become: no
+      run_once: yes
+      get_url:
+        url: "{{ HCurlPol }}/{{ item }}"
+        dest: "{{ localBaseDirHCPol }}"
+        owner: ansible
+        group: ansible
+        mode: 0755
+      with_items:
+        - Tivoli/scm511policies/gsdisec/OpenSSH.UNIX.ITSSCSD.pol
+        - Tivoli/scm511policies/gsdisec/UNIX.Linux.ITSSCSD.pol
+        - Sudo_st/SUDO.UNIX.ITSSCSD.pol
 
     - name: Run HCLauncher
       script: "{{ localBaseDirScripts }}/hc_run.sh {{ localBaseDirHCBin }} {{ localBaseDirDownloads }} {{ item }} {{ localBaseDirHCReport }} {{ now(fmt='%d%B%Y') }} {{ ansible_hostname }}"
