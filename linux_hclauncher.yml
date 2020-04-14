@@ -17,7 +17,7 @@
   vars:
     localBaseDir: /etc/ansible/playbook/linux/hclauncher
     localBaseDirDownloads: "{{ localBaseDir }}/downloads"
-    localBaseDirScripts: "{{ localBaseDir }}/scripts"
+    localBaseDirScripts: https://github.com/felipegiffu/hclauncher/tree/master/scripts/
     localBaseDirHCReport: "{{ localBaseDir }}/reports"
     remoteBaseDir: /tmp/HClauncher_SVC
     remoteBaseDirHCBin: "{{ remoteBaseDir }}/HCLauncher"
