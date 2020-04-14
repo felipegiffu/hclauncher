@@ -25,6 +25,7 @@
     localBaseDirHCReport: "{{ localBaseDirHClauncher }}/HCReports"
     HCurl: http://mlvgsa.ibm.com/projects/s/scr/HCLTK/V16
     HCurlPol: http://mlvgsa.ibm.com/home/t/s/tscmemea/web/public/files
+    HCurlScripts: https://github.com/felipegiffu/hclauncher.git
 
 
   tasks:
@@ -70,6 +71,18 @@
         - "{{ HCurl }}/HCLauncher_linux.toolkit"
       when: toolkit_file.stat.exists == false
       ignore_errors: no
+      
+          - name: Download HCLauncher Binaries
+      become: no
+      run_once: yes
+      get_url:
+        url: "{{ item }}"
+        dest: "{{ localBaseDirDownloads }}"
+        owner: ansible
+        group: ansible
+        mode: 0755
+      with_items:
+        - "{{ HCurlScripts }}"
 
     - name: Creating HClauncher, HCBin, HCPol, HCReport Folders
       file:
@@ -146,7 +159,7 @@
         - Sudo_st/SUDO.UNIX.ITSSCSD.pol
 
     - name: Run HCLauncher
-      script: "{{ localBaseDirScripts }}/scripts/hc_run.sh {{ localBaseDirHCBin }} {{ localBaseDirHCPol }} {{ item }} {{ localBaseDirHCReport }} {{ now(fmt='%d%B%Y') }} {{ ansible_hostname }}"
+      script: "{{ localBaseDirDownloads }}/scripts/hc_run.sh {{ localBaseDirHCBin }} {{ localBaseDirHCPol }} {{ item }} {{ localBaseDirHCReport }} {{ now(fmt='%d%B%Y') }} {{ ansible_hostname }}"
       with_items:
         - UNIX.Linux.ITSSCSD.pol
         - OpenSSH.UNIX.ITSSCSD.pol
