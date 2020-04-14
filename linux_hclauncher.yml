@@ -146,7 +146,7 @@
         - Sudo_st/SUDO.UNIX.ITSSCSD.pol
 
     - name: Run HCLauncher
-      script: "{{ localBaseDirScripts }}/hc_run.sh {{ localBaseDirHCBin }} {{ localBaseDirHCPol }} {{ item }} {{ localBaseDirHCReport }} {{ now(fmt='%d%B%Y') }} {{ ansible_hostname }}"
+      script: "{{ localBaseDirScripts }}hc_run.sh {{ localBaseDirHCBin }} {{ localBaseDirHCPol }} {{ item }} {{ localBaseDirHCReport }} {{ now(fmt='%d%B%Y') }} {{ ansible_hostname }}"
       with_items:
         - UNIX.Linux.ITSSCSD.pol
         - OpenSSH.UNIX.ITSSCSD.pol
