@@ -75,7 +75,7 @@
       file:
         path: "{{ item }}"
         state: directory
-        owner: root
+        owner: ansible
         group: ansible
         mode: 0755
       with_items:
