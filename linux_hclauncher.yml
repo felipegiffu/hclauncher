@@ -25,7 +25,7 @@
     localBaseDirHCReport: "{{ localBaseDirHClauncher }}/HCReports"
     HCurl: http://mlvgsa.ibm.com/projects/s/scr/HCLTK/V16
     HCurlPol: http://mlvgsa.ibm.com/home/t/s/tscmemea/web/public/files
-    HCurlScripts: https://github.com/felipegiffu/hclauncher/tree/master/scripts/hc_run.sh
+    HCurlScripts: https://github.com/felipegiffu/hclauncher/raw/master/scripts.zip
 
 
   tasks:
