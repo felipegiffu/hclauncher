@@ -15,14 +15,14 @@
   # gather_facts: false
 
   vars:
-    localBaseDir: /etc/ansible/playbook/linux/hclauncher
+    localBaseDir: /tmp/HealthCheck
     localBaseDirDownloads: "{{ localBaseDir }}/downloads"
     localBaseDirScripts: https://github.com/felipegiffu/hclauncher/tree/master/scripts/
     localBaseDirHCReport: "{{ localBaseDir }}/reports"
-    remoteBaseDir: /tmp/HClauncher_SVC
-    remoteBaseDirHCBin: "{{ remoteBaseDir }}/HCLauncher"
-    remoteBaseDirHCPol: "{{ remoteBaseDir }}/HCPolicies"
-    remoteBaseDirHCReport: "{{ remoteBaseDir }}/HCReports"
+    localBaseDirHClauncher: /tmp/Healthcheck/HClauncher_SVC
+    localBaseDirHCBin: "{{ localBaseDirHClauncher }}/HCLauncher"
+    localBaseDirHCPol: "{{ localBaseDirHClauncher }}/HCPolicies"
+    localBaseDirHCReport: "{{ localBaseDirHClauncher }}/HCReports"
     HCurl: http://mlvgsa.ibm.com/projects/s/scr/HCLTK/V16
     HCurlPol: http://mlvgsa.ibm.com/home/t/s/tscmemea/web/public/files
 
@@ -42,87 +42,82 @@
         when: tmp_freespace.stdout|float < 2560000
 
     - name : Creating Local Folders
-      delegate_to: b01lvi24221650.ahe.pok.ibm.com
       run_once: yes
       file:
         path: "{{ item }}"
         state: directory
-        owner: cansible
+        owner: ansible
         group: ansible
         mode: 0755
       with_items:
         - "{{ localBaseDirDownloads }}"
 
     - name: Checking if HCLauncher_linux.toolkit exist
-      delegate_to: b01lvi24221650.ahe.pok.ibm.com
       stat:
         path: "{{ localBaseDir }}/downloads/HCLauncher_linux.toolkit"
       register: toolkit_file
 
     - name: Download HCLauncher Binaries
       become: no
-      delegate_to: b01lvi24221650.ahe.pok.ibm.com
       run_once: yes
       get_url:
         url: "{{ item }}"
         dest: "{{ localBaseDirDownloads }}"
-        owner: cansible
-        group: ansiblegr
+        owner: ansible
+        group: ansible
         mode: 0755
       with_items:
         - "{{ HCurl }}/HCLauncher_linux.toolkit"
       when: toolkit_file.stat.exists == false
       ignore_errors: no
 
-    - name: Creating Remote Folders
+    - name: Creating HClauncher, HCBin, HCPol, HCReport Folders
       file:
         path: "{{ item }}"
         state: directory
-        owner: root
-        group: ansiblegr
+        owner: ansible
+        group: ansible
         mode: 0755
       with_items:
-        - "{{ remoteBaseDir }}"
-        - "{{ remoteBaseDirHCBin }}"
-        - "{{ remoteBaseDirHCPol }}"
-        - "{{ remoteBaseDirHCReport }}"
+        - "{{ localBaseDirHClauncher }}"
+        - "{{ localBaseDirHCBin }}"
+        - "{{ localBaseDirHCPol }}"
+        - "{{ localBaseDirHCReport }}"
 
     - name: Copy Binaries to the hosts
       copy:
         src: "{{ item }}"
-        dest: "{{ remoteBaseDir }}"
-        owner: root
-        group: ansiblegr
+        dest: "{{ localBaseDirHClauncher }}"
+        owner: ansible
+        group: ansible
         mode: 0755
       with_items:
         - "{{ localBaseDirDownloads }}/HCLauncher_linux.toolkit"
 
     - name: Install HCLauncher on RHEL hosts
       shell: |
-        cd {{ remoteBaseDir }};tar xf HCLauncher_linux.toolkit
-        rm {{ remoteBaseDir }}/HCLauncher_linux.toolkit
+        cd {{ localBaseDirHClauncher }};tar xf HCLauncher_linux.toolkit
+        rm {{ localBaseDirHClauncher }}/HCLauncher_linux.toolkit
 
     - name : Create Local Folders
-      delegate_to: b01lvi24221650.ahe.pok.ibm.com
       run_once: yes
       file:
         path: "{{ item }}"
         state: directory
-        owner: cansible
-        group: ansiblegr
+        owner: ansible
+        group: ansible
         mode: 0755
       with_items:
         - "{{ localBaseDirDownloads }}"
 
     - name: Download HCLauncher Policies
       become: no
-      delegate_to: localhost
       run_once: yes
       get_url:
         url: "{{ HCurlPol }}/{{ item }}"
         dest: "{{ localBaseDirDownloads }}"
-        owner: cansible
-        group: ansiblegr
+        owner: ansible
+        group: ansible
         mode: 0755
       with_items:
         - Tivoli/scm511policies/gsdisec/OpenSSH.UNIX.ITSSCSD.pol
@@ -134,28 +129,28 @@
         path: "{{ item }}"
         state: absent
       with_items:
-        - "{{ remoteBaseDirHCPol }}"
-        - "{{ remoteBaseDirHCReport }}"
+        - "{{ localBaseDirHCPol }}"
+        - "{{ localBaseDirHCReport }}"
 
-    - name: Creating Remote Folders
+    - name: Creating Local HCBin, HCpol, HCReport Folders
       file:
         path: "{{ item }}"
         state: directory
-        owner: root
-        group: ansiblegr
+        owner: ansible
+        group: ansible
         mode: 0755
       with_items:
-        - "{{ remoteBaseDir }}"
-        - "{{ remoteBaseDirHCBin }}"
-        - "{{ remoteBaseDirHCPol }}"
-        - "{{ remoteBaseDirHCReport }}"
+        - "{{ localBaseDirHClauncher }}"
+        - "{{ localBaseDirHCBin }}"
+        - "{{ localBaseDirHCPol }}"
+        - "{{ localBaseDirHCReport }}"
 
     - name: Copy Policies
       copy:
         src: "{{ localBaseDirDownloads }}/{{ item }}"
-        dest: "{{ remoteBaseDirHCPol }}"
-        owner: root
-        group: ansiblegr
+        dest: "{{ localBaseDirHCPol }}"
+        owner: ansible
+        group: ansible
         mode: 0755
       with_items:
         - UNIX.Linux.ITSSCSD.pol
@@ -163,7 +158,7 @@
         - SUDO.UNIX.ITSSCSD.pol
 
     - name: Run HCLauncher
-      script: "{{ localBaseDirScripts }}/hc_run.sh {{ remoteBaseDirHCBin }} {{ remoteBaseDirHCPol }} {{ item }} {{ remoteBaseDirHCReport }} {{ now(fmt='%d%B%Y') }} {{ ansible_hostname }}"
+      script: "{{ localBaseDirScripts }}/hc_run.sh {{ localBaseDirHCBin }} {{ localBaseDirHCPol }} {{ item }} {{ localBaseDirHCReport }} {{ now(fmt='%d%B%Y') }} {{ ansible_hostname }}"
       with_items:
         - UNIX.Linux.ITSSCSD.pol
         - OpenSSH.UNIX.ITSSCSD.pol
