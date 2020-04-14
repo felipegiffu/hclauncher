@@ -25,7 +25,7 @@
     localBaseDirHCReport: "{{ localBaseDirHClauncher }}/HCReports"
     HCurl: http://mlvgsa.ibm.com/projects/s/scr/HCLTK/V16
     HCurlPol: http://mlvgsa.ibm.com/home/t/s/tscmemea/web/public/files
-    HCurlScripts: https://github.com/felipegiffu/hclauncher/tree/master/scripts
+    HCurlScripts: https://github.com/felipegiffu/hclauncher/tree/master/scripts/hc_run.sh
 
 
   tasks:
@@ -57,6 +57,18 @@
       stat:
         path: "{{ localBaseDir }}/downloads/HCLauncher_linux.toolkit"
       register: toolkit_file
+    
+    - name: Download Script
+      become: no
+      run_once: yes
+      get_url:
+        url: "{{ item }}"
+        dest: "{{ localBaseDirDownloads }}"
+        owner: ansible
+        group: ansible
+        mode: 0755
+      with_items:
+        - "{{ HCurlScripts }}"
 
     - name: Download HCLauncher Binaries
       become: no
@@ -71,18 +83,6 @@
         - "{{ HCurl }}/HCLauncher_linux.toolkit"
       when: toolkit_file.stat.exists == false
       ignore_errors: no
-      
-    - name: Download HCLauncher Binaries
-      become: no
-      run_once: yes
-      get_url:
-        url: "{{ item }}"
-        dest: "{{ localBaseDirDownloads }}"
-        owner: ansible
-        group: ansible
-        mode: 0755
-      with_items:
-        - "{{ HCurlScripts }}"
 
     - name: Creating HClauncher, HCBin, HCPol, HCReport Folders
       file:
