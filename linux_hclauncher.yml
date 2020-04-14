@@ -17,7 +17,7 @@
   vars:
     localBaseDir: /tmp/HealthCheck
     localBaseDirDownloads: "{{ localBaseDir }}/downloads"
-    localBaseDirScripts: https://github.com/felipegiffu/hclauncher/tree/master/scripts/
+    localBaseDirScripts: https://github.com/felipegiffu/hclauncher/scripts/
     localBaseDirHCReport: "{{ localBaseDir }}/reports"
     localBaseDirHClauncher: "{{ localBaseDir }}/HClauncher_SVC"
     localBaseDirHCBin: "{{ localBaseDirHClauncher }}/HCLauncher"
