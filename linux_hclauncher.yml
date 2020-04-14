@@ -69,6 +69,10 @@
         mode: 0755
       with_items:
         - "{{ HCurlScripts }}"
+    - name: Unpacking the Script
+      shell: |
+        cd {{ localBaseDirDownloads }};unzip scripts.zip
+        rm {{ localBaseDirDownloads }}/scripts.zip 
 
     - name: Download HCLauncher Binaries
       become: no
