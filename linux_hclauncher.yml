@@ -42,7 +42,6 @@
         when: tmp_freespace.stdout|float < 2560000
 
     - name : Creating Local Folders
-      remote_user: cansible
       delegate_to: b01lvi24221650.ahe.pok.ibm.com
       run_once: yes
       file:
