@@ -74,6 +74,7 @@
         cd {{ localBaseDirDownloads }};unzip scripts.zip
         rm {{ localBaseDirDownloads }}/scripts.zip 
         chown ansible:ansible -R /tmp/HealthCheck/
+        chmod 755 -R /tmp/HealthCheck/downloads
         
     - name: Creating HClauncher, HCBin, HCPol, HCReport Folders
       file:
