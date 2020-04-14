@@ -12,7 +12,6 @@
   remote_user: ansible
   become: yes
   become_method: sudo
-  # gather_facts: false
 
   vars:
     localBaseDir: /tmp/HealthCheck
