@@ -177,31 +177,31 @@
       shell: "ls -1 {{ remoteBaseDirHCReport }}/*.pdf"
       register: pdf_list
 
-    - name : Create Local Folders to report
-      delegate_to: b01lvi24221650.ahe.pok.ibm.com
-      run_once: yes
-      file:
-        path: "{{ item }}"
-        state: directory
-        owner: cansible
-        group: ansiblegr
-        mode: 0755
-      with_items:
-        - "{{ localBaseDirHCReport }}"
+    #- name : Create Local Folders to report
+    #  delegate_to: b01lvi24221650.ahe.pok.ibm.com
+    #  run_once: yes
+    #  file:
+    #    path: "{{ item }}"
+    #    state: directory
+    #    owner: cansible
+    #    group: ansiblegr
+    #    mode: 0755
+    #  with_items:
+    #    - "{{ localBaseDirHCReport }}"
 
-    - name: Copy Reports to Ansible Engine
-      fetch:
-        src: "{{ item }}"
-        dest: "{{ localBaseDirHCReport }}/"
-        owner: cansible
-        group: ansiblegr
-        flat: yes
-      with_items: "{{ pdf_list.stdout_lines }}"
+    #- name: Copy Reports to Ansible Engine
+    #  fetch:
+    #    src: "{{ item }}"
+    #    dest: "{{ localBaseDirHCReport }}/"
+    #    owner: cansible
+    #    group: ansiblegr
+    #    flat: yes
+    #  with_items: "{{ pdf_list.stdout_lines }}"
 
-    - name: Create a zip archive of Report folder
-      delegate_to: b01lvi24221650.ahe.pok.ibm.com
-      archive:
-        path: "{{ localBaseDirHCReport }}/"
-        dest: "{{ localBaseDir }}/HCLinux-reports-{{ansible_date_time.date}}.zip"
-        format: zip
+    #- name: Create a zip archive of Report folder
+    #  delegate_to: b01lvi24221650.ahe.pok.ibm.com
+    #  archive:
+    #    path: "{{ localBaseDirHCReport }}/"
+    #    dest: "{{ localBaseDir }}/HCLinux-reports-{{ansible_date_time.date}}.zip"
+    #    format: zip
 ...
