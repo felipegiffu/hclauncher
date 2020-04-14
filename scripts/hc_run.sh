@@ -1,8 +1,8 @@
 #/bin/ksh
-hcBaseDir=$1 	#remoteBaseDirHCBin
-hcPolDir=$2	#remoteBaseDirHCPol
+hcBaseDir=$1 	#localBaseDirHCBin
+hcPolDir=$2	#localBaseDirHCPol
 hcPolFile=$3	#item
-hcReport=$4	#remoteBaseDirHCReport
+hcReport=$4	#localBaseDirHCReport
 hcReportDate=$5	#{{ now(fmt='%d%B%Y') }}
 hostName=$6	#{{ ansible_hostname }}
 hcRepPolName=`echo ${hcPolFile}| rev | cut -c5- | rev`
