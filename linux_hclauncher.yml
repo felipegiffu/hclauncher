@@ -15,10 +15,10 @@
   # gather_facts: false
 
   vars:
-    localBaseDir: /etc/ansible/playbook/linux/hclauncher
+    localBaseDir: /tmp
     localBaseDirDownloads: "{{ localBaseDir }}/downloads"
     localBaseDirScripts: "{{ localBaseDir }}/scripts"
-    localBaseDirHCReport: "{{ localBaseDir }}/reports"
+    localBaseDirHCReport: "/etc/ansible/playbook/linux/hclauncher/"
     remoteBaseDir: /tmp/HClauncher_SVC
     remoteBaseDirHCBin: "{{ remoteBaseDir }}/HCLauncher"
     remoteBaseDirHCPol: "{{ remoteBaseDir }}/HCPolicies"
@@ -42,44 +42,41 @@
         when: tmp_freespace.stdout|float < 2560000
 
     - name : Creating Local Folders
-      delegate_to: localhost
       run_once: yes
       file:
         path: "{{ item }}"
         state: directory
-        owner: cansible
+        owner: ansible
         group: ansible
         mode: 0755
       with_items:
         - "{{ localBaseDirDownloads }}"
 
     - name: Checking if HCLauncher_linux.toolkit exist
-      delegate_to: localhost
       stat:
         path: "{{ localBaseDir }}/downloads/HCLauncher_linux.toolkit"
       register: toolkit_file
 
     - name: Download HCLauncher Binaries
       become: no
-      delegate_to: localhost
       run_once: yes
       get_url:
         url: "{{ item }}"
         dest: "{{ localBaseDirDownloads }}"
-        owner: cansible
-        group: ansiblegr
+        owner: ansible
+        group: ansible
         mode: 0755
       with_items:
         - "{{ HCurl }}/HCLauncher_linux.toolkit"
       when: toolkit_file.stat.exists == false
       ignore_errors: no
 
-    - name: Creating Remote Folders
+    - name: Creating Folders
       file:
         path: "{{ item }}"
         state: directory
         owner: root
-        group: ansiblegr
+        group: ansible
         mode: 0755
       with_items:
         - "{{ remoteBaseDir }}"
@@ -92,7 +89,7 @@
         src: "{{ item }}"
         dest: "{{ remoteBaseDir }}"
         owner: root
-        group: ansiblegr
+        group: ansible
         mode: 0755
       with_items:
         - "{{ localBaseDirDownloads }}/HCLauncher_linux.toolkit"
@@ -103,7 +100,6 @@
         rm {{ remoteBaseDir }}/HCLauncher_linux.toolkit
 
     - name : Create Local Folders
-      delegate_to: localhost
       run_once: yes
       file:
         path: "{{ item }}"
@@ -116,13 +112,12 @@
 
     - name: Download HCLauncher Policies
       become: no
-      delegate_to: localhost
       run_once: yes
       get_url:
         url: "{{ HCurlPol }}/{{ item }}"
         dest: "{{ localBaseDirDownloads }}"
-        owner: cansible
-        group: ansiblegr
+        owner: ansible
+        group: ansible
         mode: 0755
       with_items:
         - Tivoli/scm511policies/gsdisec/OpenSSH.UNIX.ITSSCSD.pol
@@ -142,7 +137,7 @@
         path: "{{ item }}"
         state: directory
         owner: root
-        group: ansiblegr
+        group: ansible
         mode: 0755
       with_items:
         - "{{ remoteBaseDir }}"
@@ -155,7 +150,7 @@
         src: "{{ localBaseDirDownloads }}/{{ item }}"
         dest: "{{ remoteBaseDirHCPol }}"
         owner: root
-        group: ansiblegr
+        group: ansible
         mode: 0755
       with_items:
         - UNIX.Linux.ITSSCSD.pol
@@ -178,7 +173,7 @@
       register: pdf_list
 
     - name : Create Local Folders to report
-      delegate_to: localhost
+      delegate_to: b01lvi24221650.ahe.pok.ibm.com
       run_once: yes
       file:
         path: "{{ item }}"
@@ -189,19 +184,19 @@
       with_items:
         - "{{ localBaseDirHCReport }}"
 
-    - name: Copy Reports to Ansible Engine
-      fetch:
-        src: "{{ item }}"
-        dest: "{{ localBaseDirHCReport }}/"
-        owner: cansible
-        group: ansiblegr
-        flat: yes
-      with_items: "{{ pdf_list.stdout_lines }}"
+   # - name: Copy Reports to Ansible Engine
+   #   fetch:
+   #     src: "{{ item }}"
+   #     dest: "{{ localBaseDirHCReport }}/"
+   #     owner: cansible
+   #     group: ansiblegr
+   #     flat: yes
+   #   with_items: "{{ pdf_list.stdout_lines }}"
 
-    - name: Create a zip archive of Report folder
-      delegate_to: localhost
-      archive:
-        path: "{{ localBaseDirHCReport }}/"
-        dest: "{{ localBaseDir }}/HCLinux-reports-{{ansible_date_time.date}}.zip"
-        format: zip
+    #- name: Create a zip archive of Report folder
+    #  delegate_to: b01lvi24221650.ahe.pok.ibm.com
+    #  archive:
+    #    path: "{{ localBaseDirHCReport }}/"
+    #    dest: "{{ localBaseDir }}/HCLinux-reports-{{ansible_date_time.date}}.zip"
+    #    format: zip
 ...
