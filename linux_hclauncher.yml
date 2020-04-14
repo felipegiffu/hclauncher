@@ -17,7 +17,7 @@
   vars:
     localBaseDir: /tmp/HealthCheck
     localBaseDirDownloads: "{{ localBaseDir }}/downloads"
-    localBaseDirScripts: https://github.com/felipegiffu/hclauncher/scripts/
+    localBaseDirScripts: https://github.com/felipegiffu/hclauncher.git
     localBaseDirHCReport: "{{ localBaseDir }}/reports"
     localBaseDirHClauncher: "{{ localBaseDir }}/HClauncher_SVC"
     localBaseDirHCBin: "{{ localBaseDirHClauncher }}/HCLauncher"
@@ -146,7 +146,7 @@
         - Sudo_st/SUDO.UNIX.ITSSCSD.pol
 
     - name: Run HCLauncher
-      script: "{{ localBaseDirScripts }}hc_run.sh {{ localBaseDirHCBin }} {{ localBaseDirHCPol }} {{ item }} {{ localBaseDirHCReport }} {{ now(fmt='%d%B%Y') }} {{ ansible_hostname }}"
+      script: "{{ localBaseDirScripts }}/scripts/hc_run.sh {{ localBaseDirHCBin }} {{ localBaseDirHCPol }} {{ item }} {{ localBaseDirHCReport }} {{ now(fmt='%d%B%Y') }} {{ ansible_hostname }}"
       with_items:
         - UNIX.Linux.ITSSCSD.pol
         - OpenSSH.UNIX.ITSSCSD.pol
