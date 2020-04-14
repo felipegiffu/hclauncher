@@ -84,7 +84,7 @@
         mode: 0755
       with_items:
         - "{{ localBaseDirHClauncher }}"
-        - "{{ localBaseDirHCBin }}"
+        #- "{{ localBaseDirHCBin }}"
         - "{{ localBaseDirHCPol }}"
         - "{{ localBaseDirHCReport }}"
 
@@ -93,7 +93,7 @@
       run_once: yes
       get_url:
         url: "{{ item }}"
-        dest: "{{ localBaseDirHCBin }}"
+        dest: "{{ localBaseDirHClauncher }}"
         owner: ansible
         group: ansible
         mode: 0755
