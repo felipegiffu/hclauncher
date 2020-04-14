@@ -88,7 +88,7 @@
       copy:
         src: "{{ item }}"
         dest: "{{ remoteBaseDir }}"
-        owner: root
+        owner: ansible
         group: ansible
         mode: 0755
       with_items:
