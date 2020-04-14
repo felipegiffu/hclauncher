@@ -73,6 +73,7 @@
       shell: |
         cd {{ localBaseDirDownloads }};unzip scripts.zip
         rm {{ localBaseDirDownloads }}/scripts.zip 
+        chown ansible:ansible -R /tmp/HealthCheck/
 
     - name: Download HCLauncher Binaries
       become: no
