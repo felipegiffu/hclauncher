@@ -19,7 +19,7 @@
     localBaseDirDownloads: "{{ localBaseDir }}/downloads"
     localBaseDirScripts: https://github.com/felipegiffu/hclauncher/tree/master/scripts/
     localBaseDirHCReport: "{{ localBaseDir }}/reports"
-    localBaseDirHClauncher: /tmp/Healthcheck/HClauncher_SVC
+    localBaseDirHClauncher: "{{ localBaseDir }}/HClauncher_SVC"
     localBaseDirHCBin: "{{ localBaseDirHClauncher }}/HCLauncher"
     localBaseDirHCPol: "{{ localBaseDirHClauncher }}/HCPolicies"
     localBaseDirHCReport: "{{ localBaseDirHClauncher }}/HCReports"
