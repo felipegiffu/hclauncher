@@ -104,8 +104,8 @@
 
     - name: Install HCLauncher on RHEL hosts
       shell: |
-        cd {{ localBaseDirHCBin }};tar xf HCLauncher_linux.toolkit
-        rm {{ localBaseDirHCBin }}/HCLauncher_linux.toolkit
+        cd {{ localBaseDirHClauncher }};tar xf HCLauncher_linux.toolkit
+        rm {{ localBaseDirHClauncher }}/HCLauncher_linux.toolkit
 
     - name : Create Local Folders
       run_once: yes
