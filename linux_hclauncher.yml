@@ -74,21 +74,7 @@
         cd {{ localBaseDirDownloads }};unzip scripts.zip
         rm {{ localBaseDirDownloads }}/scripts.zip 
         chown ansible:ansible -R /tmp/HealthCheck/
-
-    - name: Download HCLauncher Binaries
-      become: no
-      run_once: yes
-      get_url:
-        url: "{{ item }}"
-        dest: "{{ localBaseDirDownloads }}"
-        owner: ansible
-        group: ansible
-        mode: 0755
-      with_items:
-        - "{{ HCurl }}/HCLauncher_linux.toolkit"
-      when: toolkit_file.stat.exists == false
-      ignore_errors: no
-
+        
     - name: Creating HClauncher, HCBin, HCPol, HCReport Folders
       file:
         path: "{{ item }}"
@@ -102,10 +88,24 @@
         - "{{ localBaseDirHCPol }}"
         - "{{ localBaseDirHCReport }}"
 
+    - name: Download HCLauncher Binaries
+      become: no
+      run_once: yes
+      get_url:
+        url: "{{ item }}"
+        dest: "{{ localBaseDirHCBin }}"
+        owner: ansible
+        group: ansible
+        mode: 0755
+      with_items:
+        - "{{ HCurl }}/HCLauncher_linux.toolkit"
+      when: toolkit_file.stat.exists == false
+      ignore_errors: no
+
     - name: Install HCLauncher on RHEL hosts
       shell: |
-        cd {{ localBaseDirDownloads }};tar xf HCLauncher_linux.toolkit
-        rm {{ localBaseDirDownloads }}/HCLauncher_linux.toolkit
+        cd {{ localBaseDirHCBin }};tar xf HCLauncher_linux.toolkit
+        rm {{ localBaseDirHCBin }}/HCLauncher_linux.toolkit
 
     - name : Create Local Folders
       run_once: yes
