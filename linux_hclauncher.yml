@@ -72,7 +72,7 @@
       when: toolkit_file.stat.exists == false
       ignore_errors: no
       
-          - name: Download HCLauncher Binaries
+    - name: Download HCLauncher Binaries
       become: no
       run_once: yes
       get_url:
