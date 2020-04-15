@@ -1,11 +1,11 @@
 #############################################################################################
-###   NAME:              install_hclauncher.yml                                              #
-###   VERSION:           1.0                                                                 #
+###   NAME:              linux_hclauncher.yml                                                #
+###   VERSION:           1.5                                                                 #
 ###   DESCRIPTION:       Download ITSS policies and install on servers.                      #
 ###   CREATION DATE:     20/11/2019                                                          #
 ###   ESCRITO POR:       Felipe Thomaz Giffu                                                 #
 ###   E-MAIL:            felipe.giffu@ibm.com                                                #
-###   PLATFORM:          Red Hat / SUSE / AIX                                                #
+###   PLATFORM:          Red Hat / SUSE                                                      #
 #############################################################################################
 ---
 - hosts: teste
@@ -14,6 +14,7 @@
   become_method: sudo
 
   vars:
+    email: felipe.giffu@ibm.com
     localBaseDir: /tmp/HealthCheck
     localBaseDirDownloads: "{{ localBaseDir }}/downloads"
     localBaseDirHCReport: "{{ localBaseDir }}/reports"
@@ -26,13 +27,11 @@
     HCurlPol: http://mlvgsa.ibm.com/home/t/s/tscmemea/web/public/files
     HCurlScripts: https://github.com/felipegiffu/hclauncher/raw/master/scripts.zip
 
-
   tasks:
-
     - name: Check /tmp freespace, 2.5GB is needed to run the HCLauncher
       shell: df /tmp --output\=avail | tail -1
       register: tmp_freespace
-
+    
     - block:
       - name: "End the playbook if some server fail in the free space check in the /tmp"
         debug:
@@ -159,8 +158,8 @@
         dest: "{{ localBaseDir }}/HCLinux-{{ansible_hostname}}-{{ansible_date_time.date}}.zip"
         format: zip
         
-    - name: Forwarding the HC to your E-mail
+    - name: Forwarding the Health Check to your E-mail
       shell: |
         cd /tmp/HealthCheck
-        echo "Pls check attached file" | mail -a *.zip -s "$(hostname) - HC" felipe.giffu@ibm.com
+        echo "Pls check attached file" | mail -a *.zip -s "$(hostname) - HC" "{{ email }}"
 ...
