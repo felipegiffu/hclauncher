@@ -90,7 +90,7 @@
         - "{{ localBaseDirHCPol }}"
         - "{{ localBaseDirHCReport }}"
       
-    - name: Creating Folders: HClauncher, HCBin, HCPol, HCReport
+    - name: Creating Folders HClauncher, HCBin, HCPol, HCReport
       file:
         path: "{{ item }}"
         state: directory
