@@ -56,33 +56,41 @@
       stat:
         path: "{{ localBaseDir }}/downloads/HCLauncher_linux.toolkit"
       register: toolkit_file
-      
-    - name: Checking if script exist
+    - name: Checking if HC script exist
       stat:
         path: "{{ localBaseDirScripts }}/hc_run.sh"
       register: script_file
-    
-    - name: Download Script
-      become: no
-      run_once: yes
-      get_url:
-        url: "{{ item }}"
-        dest: "{{ localBaseDirDownloads }}"
-        owner: ansible
-        group: ansible
-        mode: 0755
+   
+    - block:
+      - name: Download Script
+        become: no
+        run_once: yes
+        get_url:
+          url: "{{ item }}"
+          dest: "{{ localBaseDirDownloads }}"
+          owner: ansible
+          group: ansible
+          mode: 0755
+        with_items:
+          - "{{ HCurlScripts }}"
+      - name: Unpacking the Script
+        shell: |
+          cd {{ localBaseDirDownloads }};unzip scripts.zip
+          rm {{ localBaseDirDownloads }}/scripts.zip 
+          chown ansible:ansible -R /tmp/HealthCheck/
+          chmod 755 -R /tmp/HealthCheck/downloads
+        when: script_file.stat.exists == false
+        ignore_errors: no
+      
+    - name: Remove Remote Old Policies and Reports
+      file:
+        path: "{{ item }}"
+        state: absent
       with_items:
-        - "{{ HCurlScripts }}"
-      when: script_file.stat.exists == false
-      ignore_errors: no
-    - name: Unpacking the Script
-      shell: |
-        cd {{ localBaseDirDownloads }};unzip scripts.zip
-        rm {{ localBaseDirDownloads }}/scripts.zip 
-        chown ansible:ansible -R /tmp/HealthCheck/
-        chmod 755 -R /tmp/HealthCheck/downloads
-        
-    - name: Creating HClauncher, HCBin, HCPol, HCReport Folders
+        - "{{ localBaseDirHCPol }}"
+        - "{{ localBaseDirHCReport }}"
+      
+    - name: Creating Folders: HClauncher, HCBin, HCPol, HCReport
       file:
         path: "{{ item }}"
         state: directory
@@ -123,27 +131,6 @@
         mode: 0755
       with_items:
         - "{{ localBaseDirDownloads }}"
-
-    - name: Remove Remote Old Policies and Reports
-      file:
-        path: "{{ item }}"
-        state: absent
-      with_items:
-        - "{{ localBaseDirHCPol }}"
-        - "{{ localBaseDirHCReport }}"
-
-    - name: Creating Local HCBin, HCpol, HCReport Folders
-      file:
-        path: "{{ item }}"
-        state: directory
-        owner: ansible
-        group: ansible
-        mode: 0755
-      with_items:
-        - "{{ localBaseDirHClauncher }}"
-        - "{{ localBaseDirHCBin }}"
-        - "{{ localBaseDirHCPol }}"
-        - "{{ localBaseDirHCReport }}"
     
     - name: Download HCLauncher Policies
       become: no
